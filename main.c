@@ -79,9 +79,6 @@ uint32_t lim = ticks+v;       // Missing processing of overflow here
 
 #define DELAYVAL 2
 
-#define PIN 0b10000000
-
-
 int main(void) {
 uint32_t v;
 char s[10];
@@ -89,8 +86,8 @@ int t;
     
 
     
-    GPIO_Init(GPIOD,0, PIN);
-
+    GPIO_Init(GPIOD, 0, BIT(7));
+    GPIO_Init(GPIOC, 0, BIT(0));
     // Set clock source to external crystal: 48 MHz
     (void) SystemCoreClockSet(CLOCK_HFXO,1,1);
 
@@ -115,6 +112,7 @@ int t;
     ADC_ConfigChannel(ADC_CH0, 0);
   
     PWM_Init(TIMER3, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL2);
+    PWM_Init(TIMER0, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
     PWM_Init(TIMER1, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
     
     // Enable IRQs
@@ -128,6 +126,7 @@ int t;
 
         PWM_Write(TIMER3,2,val);
         PWM_Write(TIMER1,1,val);
+        PWM_Write(TIMER0,1,val);
         sprintf(s,"%5d", val);
         LCD_WriteString(s);
         Delay(500);
