@@ -92,7 +92,7 @@ DEBUG=y
 #
 #GECKOSDKDIR=../../Gecko_SDK
 #GECKOSDKDIR=/media/sf_Oracle_VM_Ubuntu/EFM32/Gecko_SDK
-GECKOSDKDIR=/home/aandrelouis/Downloads/Gecko_SDK
+GECKOSDKDIR=/home/laranja/Downloads/Gecko_SDK
 #
 # CMSIS header files folders (ARM and manufacturer specific)
 #

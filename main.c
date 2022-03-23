@@ -2,7 +2,7 @@
  * @file    main.c
  * @brief   Simple LED Blink Demo for EFM32GG_STK3700
  * @version 1.0
-******************************************************************************/
+ ******************************************************************************/
 
 #include <stdint.h>
 /*
@@ -22,7 +22,6 @@
 #include "lcd.h"
 #include "pwm.h"
 
-
 /*****************************************************************************
  * @brief  SysTick interrupt handler
  *
@@ -33,38 +32,38 @@
 #define SYSTICKDIVIDER 1000
 #define SOFTDIVIDER 1000
 
-
-
 static uint32_t ticks = 0;
 
-void SysTick_Handler(void) {
-static int counter = 0;             // must be static
+void SysTick_Handler(void)
+{
+    static int counter = 0; // must be static
 
     ticks++;
-    
-    if( counter != 0 ) {
+
+    if (counter != 0)
+    {
         counter--;
-    } else {
-        counter = SOFTDIVIDER-1;
+    }
+    else
+    {
+        counter = SOFTDIVIDER - 1;
     }
 }
 
 //}
 
-
 /*****************************************************************************
  * @brief  Delay function based on SysTick
  *****************************************************************************/
 
+void Delay(uint32_t v)
+{
+    uint32_t lim = ticks + v; // Missing processing of overflow here
 
-void
-Delay(uint32_t v) {
-uint32_t lim = ticks+v;       // Missing processing of overflow here
-
-    while ( ticks < lim ) {}
-
+    while (ticks < lim)
+    {
+    }
 }
-
 
 /*****************************************************************************
  * @brief  Main function
@@ -79,23 +78,30 @@ uint32_t lim = ticks+v;       // Missing processing of overflow here
 
 #define DELAYVAL 2
 
-int main(void) {
-uint32_t v;
-char s[10];
-int t;
-    
+int main(void)
+{
+    uint32_t v;
+    char s[10];
+    char r[10];
+    int t;
 
-    
+    // init inputs
+    GPIO_Init(GPIOD, BIT(0), 0);
+    GPIO_Init(GPIOD, BIT(1), 0);
+    GPIO_Init(GPIOD, BIT(0), 0);
+
+    // init dos leds
     GPIO_Init(GPIOD, 0, BIT(7));
     GPIO_Init(GPIOC, 0, BIT(0));
     // Set clock source to external crystal: 48 MHz
-    (void) SystemCoreClockSet(CLOCK_HFXO,1,1);
+    (void)SystemCoreClockSet(CLOCK_HFXO, 1, 1);
+    SysTick_Config(SystemCoreClock / SYSTICKDIVIDER);
 
     /* Turn on LEDs */
     LED_Write(LED1, 0);
-    
+
     /* Configure SysTick */
-    SysTick_Config(SystemCoreClock/SYSTICKDIVIDER);
+    SysTick_Config(SystemCoreClock / SYSTICKDIVIDER);
 
     /* Configure LCD */
     LCD_Init();
@@ -105,30 +111,36 @@ int t;
 
     LCD_ClearAll();
     Delay(DELAYVAL);
-    
-    
-    //Configure ADC
-    ADC_Init(5000);
+
+    // Configure ADC
+    ADC_Init(500000);
     ADC_ConfigChannel(ADC_CH0, 0);
-  
-    PWM_Init(TIMER3, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL2);
+    ADC_ConfigChannel(ADC_CH1, 0); // ADC_SINGLECTRL_REF_
+
+    PWM_Init(TIMER3, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL2); // potenciometro
     PWM_Init(TIMER0, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
     PWM_Init(TIMER1, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
-    
+
     // Enable IRQs
     __enable_irq();
     int max = 0xFFFF;
     int raz = max / 4096;
 
-    while (1) {
-        v = ADC_Read(ADC_CH0);
-        int val = v * raz;
+    while (1)
+    {
+        // v = ADC_Read(ADC_CH0);
+        int valueReadDir = ADC_Read(ADC_CH0);
+        int valueReadEsq = ADC_Read(ADC_CH1);
+        // int val = v * raz;
 
-        PWM_Write(TIMER3,2,val);
-        PWM_Write(TIMER1,1,val);
-        PWM_Write(TIMER0,1,val);
-        sprintf(s,"%5d", val);
+        // PWM_Write(TIMER3, 2, val);
+        // PWM_Write(TIMER1, 1, val);
+        // PWM_Write(TIMER0, 1, val);
+        sprintf(s, "%5d", valueReadDir);
+        sprintf(r, "%5d", valueReadEsq);
         LCD_WriteString(s);
         Delay(500);
+        LCD_WriteString(r);
+        Delay(200);
     }
 }
