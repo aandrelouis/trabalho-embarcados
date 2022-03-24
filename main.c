@@ -88,11 +88,12 @@ int main(void)
     // init inputs
     GPIO_Init(GPIOD, BIT(0), 0);
     GPIO_Init(GPIOD, BIT(1), 0);
-    GPIO_Init(GPIOD, BIT(0), 0);
 
     // init dos leds
     GPIO_Init(GPIOD, 0, BIT(7));
     GPIO_Init(GPIOC, 0, BIT(0));
+    GPIO_Init(GPIOA,0, BIT(12));
+
     // Set clock source to external crystal: 48 MHz
     (void)SystemCoreClockSet(CLOCK_HFXO, 1, 1);
     SysTick_Config(SystemCoreClock / SYSTICKDIVIDER);
@@ -116,10 +117,11 @@ int main(void)
     ADC_Init(500000);
     ADC_ConfigChannel(ADC_CH0, 0);
     ADC_ConfigChannel(ADC_CH1, 0); // ADC_SINGLECTRL_REF_
+    // ADC_ConfigChannel(ADC_CH2, 0);
 
-    PWM_Init(TIMER3, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL2); // potenciometro
     PWM_Init(TIMER0, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
     PWM_Init(TIMER1, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1);
+    PWM_Init(TIMER2, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL0);
 
     // Enable IRQs
     __enable_irq();
@@ -128,19 +130,19 @@ int main(void)
 
     while (1)
     {
-        // v = ADC_Read(ADC_CH0);
-        int valueReadDir = ADC_Read(ADC_CH0);
-        int valueReadEsq = ADC_Read(ADC_CH1);
-        // int val = v * raz;
+        v = ADC_Read(ADC_CH0);
+       int valueReadDir = ADC_Read(ADC_CH1);
+        int val = v * raz;
+        int val2 = valueReadDir * raz;
 
-        // PWM_Write(TIMER3, 2, val);
-        // PWM_Write(TIMER1, 1, val);
-        // PWM_Write(TIMER0, 1, val);
-        sprintf(s, "%5d", valueReadDir);
-        sprintf(r, "%5d", valueReadEsq);
+        PWM_Write(TIMER1, 1, val);
+        PWM_Write(TIMER0, 2, val);
+        PWM_Write(TIMER2, 0, val2/4); //servo
+
+        sprintf(s, "%5d", v);
+
         LCD_WriteString(s);
-        Delay(500);
-        LCD_WriteString(r);
-        Delay(200);
+        // Delay(100);
+
     }
 }
