@@ -159,10 +159,6 @@ int main(void)
     GPIO_Init(GPIOC, 0, BIT(0));
 
     // init do servo
-    GPIO_Init(GPIOA, 0, BIT(12));
-
-    // Set clock source to external crystal: 48 MHz
-    (void)SystemCoreClockSet(CLOCK_HFXO, 1, 1);
     SysTick_Config(SystemCoreClock / SYSTICKDIVIDER);
 
     /* Turn on LEDs */
@@ -184,6 +180,7 @@ int main(void)
     ADC_Init(500000);
     ADC_ConfigChannel(ADC_CH0, 0);
     ADC_ConfigChannel(ADC_CH1, 0); // ADC_SINGLECTRL_REF_
+    // ADC_ConfigChannel(ADC_CH2, 0);
 
     PWM_Init(TIMER3, PWM_LOC1, PWM_PARAMS_ENABLECHANNEL2); // potenciometro
     PWM_Init(TIMER0, PWM_LOC4, PWM_PARAMS_ENABLECHANNEL1); // pc0
